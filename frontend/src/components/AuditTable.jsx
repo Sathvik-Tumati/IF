@@ -1,7 +1,19 @@
-import React from 'react';
-import { FileText, Grid, CheckCircle, AlertOctagon, AlertTriangle, ExternalLink, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { FileText, Grid, CheckCircle, AlertOctagon, AlertTriangle, ExternalLink, ArrowRight, X } from 'lucide-react';
 
 export default function AuditTable({ data, onResolve }) {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showDialog, setShowDialog] = useState(false);
+
+  const handleView = (url) => {
+    setSelectedImage(url);
+    setShowDialog(true);
+  };
+
+  const closeDialog = () => {
+    setShowDialog(false);
+    setSelectedImage(null);
+  };
   return (
     <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200">
       <table className="min-w-full leading-normal">
@@ -35,7 +47,7 @@ export default function AuditTable({ data, onResolve }) {
                 {row.status === 'RESOLVED' && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600"><CheckCircle size={14}/> Resolved</span>}
               </td>
               <td className="px-6 py-4">
-                {row.file_url ? <a href={row.file_url} target="_blank" className="text-indigo-600 hover:text-indigo-800 text-xs font-semibold flex items-center gap-1">View <ExternalLink size={12}/></a> : <span className="text-gray-400 text-xs italic">No Image</span>}
+                {row.file_url ? <button onClick={() => handleView(row.file_url)} className="text-indigo-600 hover:text-indigo-800 text-xs font-semibold flex items-center gap-1">View <ExternalLink size={12}/></button> : <span className="text-gray-400 text-xs italic">No Image</span>}
               </td>
               <td className="px-6 py-4">
                 {row.status !== 'CLEAN' && row.status !== 'RESOLVED' && (
@@ -46,6 +58,20 @@ export default function AuditTable({ data, onResolve }) {
           ))}
         </tbody>
       </table>
+
+      {showDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-6xl w-full max-h-[90vh] overflow-auto scrollbar-thin scrollbar-thumb-slate-400 scrollbar-track-slate-100">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Answer Sheet</h3>
+              <button onClick={closeDialog} className="text-gray-500 hover:text-gray-700">
+                <X size={24} />
+              </button>
+            </div>
+            <img src={selectedImage} alt="Answer Sheet" className="w-full h-auto object-contain" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
